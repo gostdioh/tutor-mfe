@@ -22,7 +22,8 @@ RUN echo "copying i18n data" \
 {% for app in iter_values_named(suffix="MFE_APP") %}
 ######## {{ app["name"] }} (src)
 FROM base AS {{ app["name"] }}-src
-RUN git clone {{ app["repository"] }} --branch {{ app.get("version", MFE_COMMON_VERSION) }} --depth 1 .
+####RUN git clone {{ app["repository"] }} --branch {{ app.get("version", MFE_COMMON_VERSION) }} --depth 1 .
+RUN git clone {{ app["repository"] }} --branch master --depth 1 .
 RUN stat /openedx/app/src/i18n/messages 2> /dev/null || (echo "missing messages folder" && mkdir -p /openedx/app/src/i18n/messages)
 ######## {{ app["name"] }} (i18n)
 FROM base AS {{ app["name"] }}-i18n
