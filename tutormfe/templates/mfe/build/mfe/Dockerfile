@@ -37,7 +37,8 @@ COPY --from={{ app["name"] }}-src /openedx/app/package.json /openedx/app/package
 COPY --from={{ app["name"] }}-src /openedx/app/package-lock.json /openedx/app/package-lock.json
 ARG NPM_REGISTRY=https://registry.npmjs.org/
 {{ patch("mfe-dockerfile-pre-npm-install") }}
-RUN npm install --no-audit --no-fund --registry=$NPM_REGISTRY && rm -rf ~/.npm
+RUN npm install --no-audit --no-fund --registry=$NPM_REGISTRY \
+  && rm -rf ~/.npm
 {{ patch("mfe-dockerfile-post-npm-install") }}
 COPY --from={{ app["name"] }}-src /openedx/app /openedx/app
 COPY --from={{ app["name"] }}-i18n /openedx/app/src/i18n/messages /openedx/app/src/i18n/messages
@@ -49,14 +50,14 @@ FROM {{ app["name"] }}-dev AS {{ app["name"] }}
 COPY ./env/production /openedx/env/production
 RUN touch /openedx/env/production.override \
   {%- for key, value in app.get("env", {}).get("production", {}).items() %}
-  && echo "{{ key }}={{ value }}" >> /openedx/env/production.override \
+  && echo "{{ key }}='{{ value }}'" >> /openedx/env/production.override \
   {%- endfor %}
   && echo "done setting production overrides"
 RUN bash -c "set -a && source /openedx/env/production && source /openedx/env/production.override && npm run build"
 {% endfor %}
 
 ####### final production image with all static assets
-FROM docker.io/caddy:2.4.3-alpine as production
+FROM {{ MFE_CADDY_DOCKER_IMAGE }} as production
 
 RUN mkdir -p /openedx/dist
 
