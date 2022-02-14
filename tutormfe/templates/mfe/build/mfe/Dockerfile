@@ -33,6 +33,9 @@ COPY --from=i18n /openedx/i18n/i18n-merge.js /openedx/i18n/i18n-merge.js
 RUN /openedx/i18n/i18n-merge.js /openedx/app/src/i18n/messages /openedx/i18n/{{ app["name"] }} /openedx/app/src/i18n/messages
 ######## {{ app["name"] }} (dev)
 FROM base AS {{ app["name"] }}-dev
+
+RUN if [ "{{  app["name"] }}" = "learning" ]; then mkdir ../brand-openedx; git clone  https://github.com/gostdioh/brand-openedx.git ../brand-openedx ; else  echo "not learning" ; fi
+
 COPY --from={{ app["name"] }}-src /openedx/app/package.json /openedx/app/package.json
 COPY --from={{ app["name"] }}-src /openedx/app/package-lock.json /openedx/app/package-lock.json
 ARG NPM_REGISTRY=https://registry.npmjs.org/
